@@ -5,16 +5,399 @@
     xmlns:f="http://java.sun.com/jsf/core"
     xmlns:h="http://java.sun.com/jsf/html"
     xmlns:x="http://myfaces.apache.org/tomahawk"
+    xmlns:c="http://java.sun.com/jsp/jstl/core"
+    xmlns:jsf="http://xmlns.jcp.org/jsf"
+    xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
     xmlns:intranda="http://xmlns.jcp.org/jsf/composite/compositesPG">
 
     <h:form>
         <intranda:box
-            boxType="primary"
-            boxPadding="true"
+            boxType="neutral"
+            boxForm="true"
+            boxPadding="false"
             icon="fa-puzzle-piece"
-            title="#{msgs.plugin}: #{msgs[('plugin_').concat(AktuelleSchritteForm.myPlugin.title)]}">
+            title="Rechnungsdaten">
             
-            <h:outputText value="hello step plugin: #{AktuelleSchritteForm.myPlugin.value}"/>
+            <!-- HEADER -->
+            <div class="form-row">
+        
+                <div class="form-label fw-bold">
+                    <intranda:formLabel />
+                </div>        
+                <div class="form-input" style="background: var(--clr-neutral-200);">
+                    <div class="row col-12 border-0" style="background: var(--clr-neutral-200);">
+        
+                        <!-- units -->
+                        <div class="col-4 pe-3 py-1 min-vh-0 fw-bold text-end">        
+                            <h:outputText value="Anzahl"/>
+                        </div>
+
+                        <!-- price -->
+                        <div class="col-4 pe-3 py-1 min-vh-0 fw-bold text-end">
+                            <h:outputText value="Einzelpreis"/>
+                        </div>
+                        
+                        <!-- total -->
+                        <div class="col-4 pe-3 py-1 min-vh-0 fw-bold text-end">
+                            <h:outputText value="Summe"/>
+                        </div>
+                    </div>
+                </div>
+        
+            </div>
+            <!-- // HEADER -->
+            
+            <!-- DIGITALISATE -->
+            <div class="form-row">
+        
+                <div class="form-label">
+                    <intranda:formLabel label="Erstellung der Digitalisate"
+                        labelFor="DigitalisateA"  labelRequired="false"/>
+                </div>        
+                <div class="form-input">
+                    <div class="row col-12 border-0">
+        
+                        <!-- units -->
+                        <div class="col-4 ps-0 py-0 min-vh-0">        
+                            <h:inputText
+                                id="DigitalisateA"
+                                styleClass="form-control form__input text-end"
+                                value="#{AktuelleSchritteForm.myPlugin.calculation.invoicePages_units}"
+                                required="true"
+                                readonly="false"
+                                tabindex="0">
+                                <f:convertNumber groupingUsed="true" minFractionDigits="2" />
+                            </h:inputText>
+                        </div>
+
+                        <!-- price -->
+                        <div class="col-4 pe-0 py-0 min-vh-0">
+                            <h:inputText
+                                id="DigitalisateB"
+                                styleClass="form-control form__input text-end"
+                                value="#{AktuelleSchritteForm.myPlugin.calculation.invoicePages_price}"
+                                required="true"
+                                readonly="false"
+                                tabindex="0"> 
+                                <f:convertNumber groupingUsed="true" minFractionDigits="2" />                               
+                            </h:inputText>
+                        </div>
+                        
+                        <!-- total -->
+                        <div class="col-4 pe-0 py-0 min-vh-0">
+                            <h:inputText
+                                id="DigitalisateC"
+                                styleClass="form-control form__input text-end"
+                                value="#{AktuelleSchritteForm.myPlugin.calculation.invoicePages_total}"
+                                readonly="true"
+                                disabled="true"
+                                tabindex="0">
+                                <f:convertNumber type="currency" currencySymbol="#{AktuelleSchritteForm.myPlugin.currency}" />                                
+                            </h:inputText>
+                        </div>
+                    </div>
+                    <intranda:formHelp content="Anzahl der Digitalisate und Preis pro Digitalisat." msgFor="DigitalisateA" />
+                </div>
+        
+            </div>
+            <!-- // DIGITALISATE -->
+            
+            <!-- SERVICE -->
+            <div class="form-row">
+        
+                <div class="form-label">
+                    <intranda:formLabel label="Sonstige Dienstleistungen"
+                        labelFor="ServiceA"  labelRequired="false"/>
+                </div>        
+                <div class="form-input">
+                    <div class="row col-12 border-0">
+        
+                        <!-- units -->
+                        <div class="col-4 ps-0 py-0 min-vh-0">        
+                            <h:inputText
+                                id="ServiceA"
+                                styleClass="form-control form__input text-end"
+                                value="#{AktuelleSchritteForm.myPlugin.calculation.invoiceService_units}"
+                                required="true"
+                                readonly="false"
+                                tabindex="0">
+                                <f:convertNumber groupingUsed="true" minFractionDigits="2" />
+                            </h:inputText>
+                        </div>
+
+                        <!-- price -->
+                        <div class="col-4 pe-0 py-0 min-vh-0">
+                            <h:inputText
+                                id="ServiceB"
+                                styleClass="form-control form__input text-end"
+                                value="#{AktuelleSchritteForm.myPlugin.calculation.invoiceService_price}"
+                                required="true"
+                                readonly="false"
+                                tabindex="0"> 
+                                <f:convertNumber groupingUsed="true" minFractionDigits="2" />                               
+                            </h:inputText>
+                        </div>
+                        
+                        <!-- total -->
+                        <div class="col-4 pe-0 py-0 min-vh-0">
+                            <h:inputText
+                                id="ServiceC"
+                                styleClass="form-control form__input text-end"
+                                value="#{AktuelleSchritteForm.myPlugin.calculation.invoiceService_total}"
+                                readonly="true"
+                                disabled="true"
+                                tabindex="0">
+                                <f:convertNumber type="currency" currencySymbol="#{AktuelleSchritteForm.myPlugin.currency}" />                                
+                            </h:inputText>
+                        </div>
+                    </div>
+                    <intranda:formHelp content="Anzahl der Servicedienstleistungen und Preis pro Serviceeinheit" msgFor="ServiceA" />
+                </div>
+        
+            </div>
+            <!-- // SERVICE -->
+            
+            <!-- ADDITIONALS -->
+            <div class="form-row">
+        
+                <div class="form-label">
+                    <intranda:formLabel label="Zusatzaufwände"
+                        labelFor="AdditionalsA"  labelRequired="false"/>
+                </div>        
+                <div class="form-input">
+                    <div class="row col-12 border-0">
+        
+                        <!-- units -->
+                        <div class="col-4 ps-0 py-0 min-vh-0">        
+                            <h:inputText
+                                id="AdditionalsA"
+                                styleClass="form-control form__input text-end"
+                                value="#{AktuelleSchritteForm.myPlugin.calculation.invoiceAdditionals_units}"
+                                required="true"
+                                readonly="false"
+                                tabindex="0">
+                                <f:convertNumber groupingUsed="true" minFractionDigits="2" />
+                            </h:inputText>
+                        </div>
+
+                        <!-- price -->
+                        <div class="col-4 pe-0 py-0 min-vh-0">
+                            <h:inputText
+                                id="AdditionalsB"
+                                styleClass="form-control form__input text-end"
+                                value="#{AktuelleSchritteForm.myPlugin.calculation.invoiceAdditionals_price}"
+                                required="true"
+                                readonly="false"
+                                tabindex="0"> 
+                                <f:convertNumber groupingUsed="true" minFractionDigits="2" />                               
+                            </h:inputText>
+                        </div>
+                        
+                        <!-- total -->
+                        <div class="col-4 pe-0 py-0 min-vh-0">
+                            <h:inputText
+                                id="AdditionalsC"
+                                styleClass="form-control form__input text-end"
+                                value="#{AktuelleSchritteForm.myPlugin.calculation.invoiceAdditionals_total}"
+                                readonly="true"
+                                disabled="true"
+                                tabindex="0">
+                                <f:convertNumber type="currency" currencySymbol="#{AktuelleSchritteForm.myPlugin.currency}" />                                
+                            </h:inputText>
+                        </div>
+                    </div>
+                    <intranda:formHelp content="Anzahl der Zusatzaufwände und Preis pro Zusatzaufwand" msgFor="AdditionalsA" />
+                </div>
+        
+            </div>
+            <!-- // ADDITIONALS -->
+            
+            <!-- DELIVERY -->
+            <div class="form-row">
+        
+                <div class="form-label">
+                    <intranda:formLabel label="Versandkosten"
+                        labelFor="DeliveryA"  labelRequired="false"/>
+                </div>        
+                <div class="form-input">
+                    <div class="row col-12 border-0">
+        
+                        <!-- units -->
+                        <div class="col-4 ps-0 py-0 min-vh-0">        
+                            <h:inputText
+                                id="DeliveryA"
+                                styleClass="form-control form__input text-end"
+                                value="#{AktuelleSchritteForm.myPlugin.calculation.invoiceDelivery_units}"
+                                required="true"
+                                readonly="false"
+                                tabindex="0">
+                                <f:convertNumber groupingUsed="true" minFractionDigits="2" />
+                            </h:inputText>
+                        </div>
+
+                        <!-- price -->
+                        <div class="col-4 pe-0 py-0 min-vh-0">
+                            <h:inputText
+                                id="DeliveryB"
+                                styleClass="form-control form__input text-end"
+                                value="#{AktuelleSchritteForm.myPlugin.calculation.invoiceDelivery_price}"
+                                required="true"
+                                readonly="false"
+                                tabindex="0"> 
+                                <f:convertNumber groupingUsed="true" minFractionDigits="2" />                               
+                            </h:inputText>
+                        </div>
+                        
+                        <!-- total -->
+                        <div class="col-4 pe-0 py-0 min-vh-0">
+                            <h:inputText
+                                id="DeliveryC"
+                                styleClass="form-control form__input text-end"
+                                value="#{AktuelleSchritteForm.myPlugin.calculation.invoiceDelivery_total}"
+                                readonly="true"
+                                disabled="true"
+                                tabindex="0">
+                                <f:convertNumber type="currency" currencySymbol="#{AktuelleSchritteForm.myPlugin.currency}" />                                
+                            </h:inputText>
+                        </div>
+                    </div>
+                    <intranda:formHelp content="Anzahl der Versandkosten und Preis pro Versandkosten" msgFor="DeliveryA" />
+                </div>
+        
+            </div>
+            <!-- // DELIVERY -->
+            
+            <!-- PAYMENT -->
+            <div class="form-row">
+        
+                <div class="form-label">
+                    <intranda:formLabel label="Zahlung"
+                        labelFor="PaymentA"  labelRequired="false"/>
+                </div>        
+                <div class="form-input">
+                    <div class="row col-12 border-0">
+        
+                        <!-- type -->
+                        <div class="col-4 ps-0 py-0 min-vh-0">        
+                            
+                            <h:selectOneMenu
+                                styleClass="form-select"
+                                value="#{AktuelleSchritteForm.myPlugin.calculation.invoicePayment_type}"
+                                pt:aria-label="#{msgs.filter}">
+                                <f:selectItem
+                                    itemLabel="Rechnung CHF"
+                                    itemValue="Rechnung CHF" />
+                                <f:selectItem
+                                    itemLabel="Rechnung EUR"
+                                    itemValue="Rechnung EUR" />
+                                <f:selectItem
+                                    itemLabel="Paypal"
+                                    itemValue="Paypal" />
+                            </h:selectOneMenu>
+                        </div>
+
+                        <!-- price -->
+                        <div class="col-4 pe-0 py-0 min-vh-0">
+                            <h:inputText
+                                id="PaymentB"
+                                styleClass="form-control form__input text-end"
+                                value="#{AktuelleSchritteForm.myPlugin.calculation.invoicePayment_price}"
+                                required="true"
+                                readonly="true"
+                                disabled="true"
+                                tabindex="0"> 
+                                <f:convertNumber groupingUsed="true" minFractionDigits="2" />                               
+                            </h:inputText>
+                        </div>
+                        
+                        <!-- total -->
+                        <div class="col-4 pe-0 py-0 min-vh-0">
+                            <h:inputText
+                                id="PaymentC"
+                                styleClass="form-control form__input text-end"
+                                value="#{AktuelleSchritteForm.myPlugin.calculation.invoicePayment_total}"
+                                readonly="true"
+                                disabled="true"
+                                tabindex="0">
+                                <f:convertNumber type="currency" currencySymbol="#{AktuelleSchritteForm.myPlugin.currency}" />                                
+                            </h:inputText>
+                        </div>
+                    </div>
+                    <intranda:formHelp content="Anzahl der Zusatzaufwände und Preis pro Zusatzaufwand" msgFor="PaymentA" />
+                </div>
+        
+            </div>
+            <!-- // PAYMENT -->
+            
+            <!-- TOTAL -->
+            <div class="form-row">
+        
+                <div class="form-label fw-bold">
+                    <intranda:formLabel label="Gesamt"
+                        labelFor="Total"  labelRequired="false"/>
+                </div>        
+                <div class="form-input">
+                    <div class="row col-12 border-0">
+        
+                        <!-- total -->
+                        <div class="col-12 pe-0 py-0 min-vh-0">
+                            <h:inputText
+                                id="Total"
+                                styleClass="form-control form__input text-end fw-bold"
+                                value="#{AktuelleSchritteForm.myPlugin.calculation.total}"
+                                readonly="true"
+                                disabled="true"
+                                tabindex="0">
+                                <f:convertNumber type="currency" currencySymbol="#{AktuelleSchritteForm.myPlugin.currency}" />                                
+                            </h:inputText>
+                        </div>
+                    </div>
+                    <intranda:formHelp content="Gesamte Kosten" msgFor="Total" />
+                </div>
+        
+            </div>
+            <!-- // TOTAL -->
+            
+            
+            
+            <!-- BUTTONS -->
+            <div class="box__actions">
+        
+                <!-- Cancel 
+                <a
+                    jsf:id="cancelEdition"
+                    class="btn btn-blank"
+                    jsf:immediate="true"
+                    jsf:action="#{AktuelleSchritteForm.myPlugin.calculation.readInvoiceProperties}">
+                    <h:outputText value="#{msgs.clear}" />
+                </a>
+                -->
+        
+                <!-- Save => should be the first btn in the form (subit on enter) -->
+                <button
+                    class="btn btn-success"
+                    jsf:id="absenden"
+                    type="submit"
+                    jsf:action="#{AktuelleSchritteForm.myPlugin.calculation.update}">
+                    <i class="fa fa-save"></i>
+                    <span>
+                        <h:outputText value="#{msgs.reload}" />
+                    </span>
+                </button>
+        
+                <!-- Download -->
+                <button
+                    jsf:id="download"
+                    class="btn btn-primary-400"
+                    jsf:action="#{AktuelleSchritteForm.myPlugin.updateAndPreview}">
+                    <i class="fa fa-file-pdf-o"></i>
+                    <span>
+                        <h:outputText value="#{msgs.plugin_codicological_showPreview}" />
+                    </span>
+                </button>
+        
+            </div>
+            <!-- // BUTTONS -->
         </intranda:box>        
     </h:form>
     

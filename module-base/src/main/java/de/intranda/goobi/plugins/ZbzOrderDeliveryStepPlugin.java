@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.DecimalFormat;
@@ -32,6 +33,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import javax.faces.context.FacesContext;
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletResponse;
 import javax.xml.transform.Result;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
@@ -63,6 +67,7 @@ import org.jdom2.output.XMLOutputter;
 
 import de.sub.goobi.config.ConfigPlugins;
 import de.sub.goobi.config.ConfigurationHelper;
+import de.sub.goobi.helper.FacesContextHelper;
 import de.sub.goobi.helper.Helper;
 import de.sub.goobi.helper.StorageProvider;
 import de.sub.goobi.helper.VariableReplacer;
@@ -90,12 +95,33 @@ public class ZbzOrderDeliveryStepPlugin implements IStepPluginVersion2 {
     private Process p;
     private transient Fileformat ff;
     private transient VariableReplacer replacer;
+    @Getter
+    private ZbzCalculation calculation;
+    @Getter
+    private String currency;
+    private boolean paymentFromEurope;
 
     @Override
     public void initialize(Step step, String returnPath) {
         this.returnPath = returnPath;
         this.step = step;
         config = ConfigPlugins.getProjectAndStepConfig(title, step);
+
+        // Open the metadata file for the process and prepare the VariableReplacer
+        try {
+            p = step.getProzess();
+            ff = p.readMetadataFile();
+            replacer = new VariableReplacer(ff.getDigitalDocument(), p.getRegelsatz().getPreferences(), p, null);
+            replacer.setSeparator(System.lineSeparator());
+        } catch (UGHException | IOException | SwapException e) {
+            log.error("Error while executing the zbz delivery plugin", e);
+            Helper.addMessageToProcessJournal(getStep().getProcessId(), LogType.ERROR,
+                    "An error happend during the zbz delivery: " + e.getMessage());
+        }
+
+        calculation = new ZbzCalculation(step.getProzess());
+        calculateCurrency();
+        calculatePaymentFromEurope();
         log.info("ZbzOrderDelivery step plugin initialized");
     }
 
@@ -134,6 +160,30 @@ public class ZbzOrderDeliveryStepPlugin implements IStepPluginVersion2 {
         return null;
     }
 
+    public void updateAndPreview() {
+        // first update the data
+        calculation.update();
+
+        // write to servlet output stream
+        try {
+            // prepare the output stream
+            FacesContext facesContext = FacesContextHelper.getCurrentFacesContext();
+            HttpServletResponse response = (HttpServletResponse) facesContext.getExternalContext().getResponse();
+            ServletContext servletContext = (ServletContext) facesContext.getExternalContext().getContext();
+            String contentType = servletContext.getMimeType("preview.pdf");
+            response.setContentType(contentType);
+            response.setHeader("Content-Disposition", "attachment;filename=\"preview.pdf\"");
+
+            // generate the pdf
+            generatePdf(response.getOutputStream());
+            facesContext.responseComplete();
+
+        } catch (IOException | PreferencesException | SwapException | DAOException e) {
+            log.error("Exception while generating the invoice preview", e);
+        }
+
+    }
+
     @Override
     public boolean execute() {
         PluginReturnValue ret = run();
@@ -144,89 +194,94 @@ public class ZbzOrderDeliveryStepPlugin implements IStepPluginVersion2 {
     public PluginReturnValue run() {
         boolean successful = true;
         try {
-
-            // Open the metadata file for the process and prepare the VariableReplacer
-            p = step.getProzess();
-            ff = p.readMetadataFile();
-            replacer = new VariableReplacer(ff.getDigitalDocument(), p.getRegelsatz().getPreferences(), p, null);
-            replacer.setSeparator(System.lineSeparator());
-
-            // create an xml document to allow xslt transformation afterwards
-            Document doc = createXmlDocumentOfContent(ff);
-
-            // if debug mode is switched on write that xml file into Goobi temp folder
-            if (config.getBoolean("debugMode", false)) {
-                writeDocumentToFile(doc, "delivery_in.xml");
-            }
-
-            // get xml as output stream
-            XMLOutputter outp = new XMLOutputter();
-            outp.setFormat(Format.getPrettyFormat());
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            outp.output(doc, out);
-            out.close();
-
-            // prepare files for xslt transformation
-            String xsltFile = ConfigurationHelper.getInstance().getXsltFolder() + config.getString("xslt", "delivery.xslt");
-            //            File resultFile = new File(ConfigurationHelper.getInstance().getTemporaryFolder(), "delivery.pdf");
+            // get information for target folder
             String resultFolder = p.getConfiguredImageFolder(config.getString("resultFolder", "delivery"));
             Path resultFolderPath = Paths.get(resultFolder);
             if (!StorageProvider.getInstance().isFileExists(resultFolderPath)) {
                 StorageProvider.getInstance().createDirectories(resultFolderPath);
             }
 
+            // define FileOutputStream for target file
             File resultFile = new File(resultFolder, config.getString("resultFile", "delivery.pdf"));
-            Path xsltfile = Paths.get(xsltFile);
-            if (!StorageProvider.getInstance().isFileExists(xsltfile)) {
-                Helper.setFehlerMeldung("Error while executing the zbz delivery plugin. XSLT file not found: " + xsltfile.toString());
-                return PluginReturnValue.ERROR;
-            }
-
-            // prepare streams for xslt transformation
-            StreamSource source = new StreamSource(new ByteArrayInputStream(out.toByteArray()));
-            StreamSource transformSource = new StreamSource(xsltfile.toFile().getAbsolutePath());
-            FopConfParser parser = this.initializeFopConfParser();
-            if (parser == null) {
-                Helper.setFehlerMeldung("Error while executing the zbz delivery plugin. Parser could not be created.");
-                return PluginReturnValue.ERROR;
-            }
-
-            //build the fop factory with the user options
-            FopFactoryBuilder builder = parser.getFopFactoryBuilder();
-            FopFactory fopFactory = builder.build();
             FileOutputStream outStream = new FileOutputStream(resultFile);
-
-            // execute xslt transformation
-            try {
-                Transformer xslfoTransformer;
-                FOUserAgent foUserAgent = fopFactory.newFOUserAgent();
-                foUserAgent.setTargetResolution(300);
-                Fop fop;
-                xslfoTransformer = getTransformer(transformSource);
-                fop = fopFactory.newFop(MimeConstants.MIME_PDF, foUserAgent, outStream);
-                Result res = new SAXResult(fop.getDefaultHandler());
-                xslfoTransformer.transform(source, res);
-            } catch (FOPException e) {
-                throw new IOException("FOPException occured", e);
-            } catch (TransformerException e) {
-                throw new IOException("TransformerException occured", e);
-            }
-
-            // close file output stream
-            outStream.flush();
+            generatePdf(outStream);
             outStream.close();
 
         } catch (UGHException | IOException | SwapException | DAOException e) {
-            log.error("Error while executing the zbz delivery preparation plugin", e);
+            log.error("Error while executing the zbz delivery plugin", e);
             Helper.addMessageToProcessJournal(getStep().getProcessId(), LogType.ERROR,
-                    "An error happend during the zbz delivery preparation: " + e.getMessage());
+                    "An error happend during the zbz delivery: " + e.getMessage());
         }
         log.debug("ZbzOrderDelivery step plugin executed");
         if (!successful) {
             return PluginReturnValue.ERROR;
         }
-        log.debug("ZbzOrderDelivery step plugin did not run successfully");
+        log.debug("ZbzOrderDelivery step plugin did run successfully");
         return PluginReturnValue.FINISH;
+    }
+
+    /**
+     * do the actual pdf generation to the given stream
+     *
+     * @throws PreferencesException
+     * @throws IOException
+     * @throws SwapException
+     * @throws DAOException
+     * @throws FileNotFoundException
+     */
+    private void generatePdf(OutputStream outStream) throws PreferencesException, IOException, SwapException, DAOException, FileNotFoundException {
+        // create an xml document to allow xslt transformation afterwards
+        Document doc = createXmlDocumentOfContent(ff);
+
+        // if debug mode is switched on write that xml file into Goobi temp folder
+        if (config.getBoolean("debugMode", false)) {
+            writeDocumentToFile(doc, "delivery_in.xml");
+        }
+
+        // get xml as output stream
+        XMLOutputter outp = new XMLOutputter();
+        outp.setFormat(Format.getPrettyFormat());
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        outp.output(doc, out);
+        out.close();
+
+        // prepare files for xslt transformation
+        String xsltFile = ConfigurationHelper.getInstance().getXsltFolder() + config.getString("xslt", "delivery.xslt");
+        //            File resultFile = new File(ConfigurationHelper.getInstance().getTemporaryFolder(), "delivery.pdf");
+
+        Path xsltfile = Paths.get(xsltFile);
+        if (!StorageProvider.getInstance().isFileExists(xsltfile)) {
+            throw new IOException("Error while executing the zbz delivery plugin. XSLT file not found: " + xsltfile.toString());
+        }
+
+        // prepare streams for xslt transformation
+        StreamSource source = new StreamSource(new ByteArrayInputStream(out.toByteArray()));
+        StreamSource transformSource = new StreamSource(xsltfile.toFile().getAbsolutePath());
+        FopConfParser parser = this.initializeFopConfParser();
+        if (parser == null) {
+            throw new IOException("Error while executing the zbz delivery plugin. Parser could not be created.");
+        }
+
+        //build the fop factory with the user options
+        FopFactoryBuilder builder = parser.getFopFactoryBuilder();
+        FopFactory fopFactory = builder.build();
+
+        // execute xslt transformation
+        try {
+            Transformer xslfoTransformer;
+            FOUserAgent foUserAgent = fopFactory.newFOUserAgent();
+            foUserAgent.setTargetResolution(300);
+            Fop fop;
+            xslfoTransformer = getTransformer(transformSource);
+            fop = fopFactory.newFop(MimeConstants.MIME_PDF, foUserAgent, outStream);
+            Result res = new SAXResult(fop.getDefaultHandler());
+            xslfoTransformer.transform(source, res);
+            outStream.flush();
+        } catch (FOPException e) {
+            throw new IOException("FOPException occured", e);
+        } catch (TransformerException e) {
+            throw new IOException("TransformerException occured", e);
+        }
     }
 
     /**
@@ -283,7 +338,6 @@ public class ZbzOrderDeliveryStepPlugin implements IStepPluginVersion2 {
         // calculate everything
         List<ZbzInvoiceItem> calcs = getInvoicing();
         DecimalFormat df = new DecimalFormat("0.00");
-        double total = 0;
 
         // add all calculations
         Element ce = new Element("invoicing");
@@ -294,19 +348,18 @@ public class ZbzOrderDeliveryStepPlugin implements IStepPluginVersion2 {
             e.setAttribute("units", item.getUnits());
             e.setAttribute("price", df.format(item.getPrice()));
             e.setAttribute("sum", df.format(item.getSum()));
-            total += item.getSum();
             ce.addContent(e);
         }
 
         // add a total price
         Element sum = new Element("total");
         sum.setAttribute("label", "Gesamt");
-        sum.setAttribute("sum", df.format(total));
+        sum.setAttribute("sum", df.format(calculation.getTotal()));
         ce.addContent(sum);
 
         // add payment details
         Element cur = new Element("payment");
-        cur.setAttribute("currency", getCurrency());
+        cur.setAttribute("currency", currency);
         ce.addContent(cur);
 
         return doc;
@@ -317,22 +370,21 @@ public class ZbzOrderDeliveryStepPlugin implements IStepPluginVersion2 {
      *
      * @return
      */
-    private String getCurrency() {
+    private void calculateCurrency() {
         String country = replacer.replace("{process.Land}").toLowerCase();
 
         switch (country) {
             case "schweiz":
             case "switzerland":
-                return " CHF";
+                currency = " CHF";
 
             case "usa":
             case "amerika":
-                return " $";
+                currency = " $";
 
             default:
-                return " €";
+                currency = " €";
         }
-
     }
 
     /**
@@ -340,7 +392,7 @@ public class ZbzOrderDeliveryStepPlugin implements IStepPluginVersion2 {
      *
      * @return
      */
-    private boolean isPaymentFromEurope() {
+    private void calculatePaymentFromEurope() {
         String country = replacer.replace("{process.Land}").toLowerCase();
 
         switch (country) {
@@ -348,53 +400,33 @@ public class ZbzOrderDeliveryStepPlugin implements IStepPluginVersion2 {
             case "niederlande":
             case "österreich":
             case "schweiz":
-                return true;
+                paymentFromEurope = true;
 
             default:
-                return false;
+                paymentFromEurope = false;
         }
     }
 
-    /**
-     * get price per image based on format/quality
-     *
-     * @return
-     */
-    private double getPricePerPage() {
-        String format = replacer.replace("{process.Dateiformat}").toLowerCase();
-        double price = 0.5;
-
-        if ("tiff".equals(format) || "tif".equals(format)) {
-            price = 20;
-        }
-
-        if ("png".equals(format)) {
-            price = 10;
-        }
-
-        return price;
-    }
-
-    /**
-     * get pricing for delivery based on delivery price method
-     *
-     * @return
-     */
-    private ZbzInvoiceItem getDeliveryCosts() {
-        String delivery = replacer.replace("{process.Lieferart}").toLowerCase();
-
-        if ("post".equals(delivery)) {
-            double priceDelivery = 7;
-            return new ZbzInvoiceItem("Lieferung per Post", "pauschal", priceDelivery, priceDelivery);
-        }
-
-        if ("cd/dvd".equals(delivery)) {
-            double priceDelivery = 25;
-            return new ZbzInvoiceItem("Lieferung als CD / DVD", "pauschal", priceDelivery, priceDelivery);
-        }
-
-        return null;
-    }
+    //    /**
+    //     * get pricing for delivery based on delivery price method
+    //     *
+    //     * @return
+    //     */
+    //    private ZbzInvoiceItem getDeliveryCosts() {
+    //        String delivery = replacer.replace("{process.Lieferart}").toLowerCase();
+    //
+    //        if ("post".equals(delivery)) {
+    //            double priceDelivery = 7;
+    //            return new ZbzInvoiceItem("Lieferung per Post", "pauschal", priceDelivery, priceDelivery);
+    //        }
+    //
+    //        if ("cd/dvd".equals(delivery)) {
+    //            double priceDelivery = 25;
+    //            return new ZbzInvoiceItem("Lieferung als CD / DVD", "pauschal", priceDelivery, priceDelivery);
+    //        }
+    //
+    //        return null;
+    //    }
 
     /**
      * calculate the entire pricing to generate an invoice
@@ -402,27 +434,40 @@ public class ZbzOrderDeliveryStepPlugin implements IStepPluginVersion2 {
      * @return
      */
     private List<ZbzInvoiceItem> getInvoicing() {
-        double pricePage = getPricePerPage();
 
         List<ZbzInvoiceItem> calcs = new ArrayList<ZbzInvoiceItem>();
-        float total = 0;
 
-        // price for pages
-        int pages = p.getSortHelperImages();
-        calcs.add(new ZbzInvoiceItem("Erstellung der Digitalisate", String.valueOf(pages), pricePage,
-                pricePage * pages));
-        total += pricePage * pages;
+        // pages
+        calcs.add(new ZbzInvoiceItem("Erstellung der Digitalisate", doubleToString(calculation.getInvoicePages_units()),
+                calculation.getInvoicePages_price(),
+                calculation.getInvoicePages_total()));
 
-        // costs for delivery if needed
-        ZbzInvoiceItem delItem = getDeliveryCosts();
-        if (delItem != null) {
-            calcs.add(delItem);
-            total += delItem.getSum();
+        // Service
+        if (calculation.getInvoiceService_total() > 0) {
+            calcs.add(new ZbzInvoiceItem("Sonstige Dienstleistungen", doubleToString(calculation.getInvoiceService_units()),
+                    calculation.getInvoiceService_price(),
+                    calculation.getInvoiceService_total()));
         }
 
-        // bank costs if payed from out of europe
-        if (!isPaymentFromEurope()) {
-            calcs.add(new ZbzInvoiceItem("Außereuropäische Abrechnungspauschale ", "pauschal", total * 0.1, total * 0.1));
+        // additionals
+        if (calculation.getInvoiceAdditionals_total() > 0) {
+            calcs.add(new ZbzInvoiceItem("Zusatzaufwände", doubleToString(calculation.getInvoiceAdditionals_units()),
+                    calculation.getInvoiceAdditionals_price(),
+                    calculation.getInvoiceAdditionals_total()));
+        }
+
+        // delivery
+        if (calculation.getInvoiceDelivery_total() > 0) {
+            calcs.add(new ZbzInvoiceItem("Versandkosten", doubleToString(calculation.getInvoiceDelivery_units()),
+                    calculation.getInvoiceDelivery_price(),
+                    calculation.getInvoiceDelivery_total()));
+        }
+
+        // bank
+        if (calculation.getInvoicePayment_total() > 0) {
+            calcs.add(new ZbzInvoiceItem("Bankspesen (" + calculation.getInvoicePayment_type() + ")", "10%",
+                    calculation.getInvoicePayment_price(),
+                    calculation.getInvoicePayment_total()));
         }
 
         return calcs;
@@ -475,5 +520,20 @@ public class ZbzOrderDeliveryStepPlugin implements IStepPluginVersion2 {
             log.error(exception);
         }
         return null;
+    }
+
+    /**
+     * convert a double to String and only use digits if needed
+     *
+     * @param d
+     * @return
+     */
+    private String doubleToString(double d) {
+        if (d == (long) d) {
+            return String.format("%d", (long) d);
+        } else {
+            DecimalFormat df = new DecimalFormat("0.00");
+            return df.format(d);
+        }
     }
 }
