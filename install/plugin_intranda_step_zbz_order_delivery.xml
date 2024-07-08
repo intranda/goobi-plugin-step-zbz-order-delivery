@@ -34,7 +34,7 @@
         <!-- which projects to use for (can be more then one, otherwise use *) -->
         <project>*</project>
         <step>Rechnung</step>
-        
+		
         <!-- use debug mode if the temporary xml shall be saved in the Goobi tmp folder -->
 		<debugMode>true</debugMode>
 		
@@ -51,6 +51,29 @@
         
 		<!-- Name of result pdf file that shall be generated -->
 		<resultFile>delivery_invoice.pdf</resultFile>
+    </config>
+
+	<config>
+        <!-- which projects to use for (can be more then one, otherwise use *) -->
+        <project>*</project>
+        <step>Rechnungsdaten ergänzen</step>
+        
+        <!-- use debug mode if the temporary xml shall be saved in the Goobi tmp folder -->
+		<debugMode>true</debugMode>
+		
+		<!-- Name of xsl file inside of the goobi xslt-folder that shall be used for the PDF generation -->
+		<xslt>delivery_preview.xsl</xslt>
+
+		<!-- into which folder shall the generated PDF be stored, possible values are master|media|jpeg|source|delivery|invoice|... 
+			make sure that the folder is configured inside of goobi_config.properties like this:
+			
+			process.folder.images.delivery={processtitle}_delivery
+			process.folder.images.invoice={processtitle}_invoice	
+		-->
+		<resultFolder>delivery</resultFolder>
+        
+		<!-- Name of result pdf file that shall be generated -->
+		<resultFile>delivery_preview.pdf</resultFile>
     </config>
 
 </config_plugin>

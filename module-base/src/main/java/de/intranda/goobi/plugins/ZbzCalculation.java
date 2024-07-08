@@ -3,6 +3,7 @@ package de.intranda.goobi.plugins;
 import org.goobi.beans.Process;
 import org.goobi.beans.Processproperty;
 
+import de.sub.goobi.persistence.managers.ProcessManager;
 import de.sub.goobi.persistence.managers.PropertyManager;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -48,7 +49,7 @@ public class ZbzCalculation {
      * read all important invoicing information from properties
      */
     public void readInvoiceProperties() {
-
+        process = ProcessManager.getProcessById(process.getId());
         for (Processproperty prop : process.getEigenschaften()) {
 
             // pages
@@ -139,6 +140,7 @@ public class ZbzCalculation {
      * @param value
      */
     private void writeProperty(String name, String value) {
+
         // update existing property if available
         for (Processproperty prop : process.getEigenschaften()) {
             if (name.equals(prop.getTitel())) {
