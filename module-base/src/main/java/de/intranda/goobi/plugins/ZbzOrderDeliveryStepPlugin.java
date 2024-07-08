@@ -97,9 +97,8 @@ public class ZbzOrderDeliveryStepPlugin implements IStepPluginVersion2 {
     private transient VariableReplacer replacer;
     @Getter
     private ZbzCalculation calculation;
-    @Getter
-    private String currency;
-    private boolean paymentFromEurope;
+
+    //    private boolean paymentFromEurope;
 
     @Override
     public void initialize(Step step, String returnPath) {
@@ -120,8 +119,6 @@ public class ZbzOrderDeliveryStepPlugin implements IStepPluginVersion2 {
         }
 
         calculation = new ZbzCalculation(step.getProzess());
-        calculateCurrency();
-        calculatePaymentFromEurope();
         log.info("ZbzOrderDelivery step plugin initialized");
     }
 
@@ -230,6 +227,8 @@ public class ZbzOrderDeliveryStepPlugin implements IStepPluginVersion2 {
      * @throws FileNotFoundException
      */
     private void generatePdf(OutputStream outStream) throws PreferencesException, IOException, SwapException, DAOException, FileNotFoundException {
+        calculation.update();
+
         // create an xml document to allow xslt transformation afterwards
         Document doc = createXmlDocumentOfContent(ff);
 
@@ -359,74 +358,11 @@ public class ZbzOrderDeliveryStepPlugin implements IStepPluginVersion2 {
 
         // add payment details
         Element cur = new Element("payment");
-        cur.setAttribute("currency", currency);
+        cur.setAttribute("currency", calculation.getCurrency());
         ce.addContent(cur);
 
         return doc;
     }
-
-    /**
-     * get currency based on the question where the delivery is send to
-     *
-     * @return
-     */
-    private void calculateCurrency() {
-        String country = replacer.replace("{process.Land}").toLowerCase();
-
-        switch (country) {
-            case "schweiz":
-            case "switzerland":
-                currency = " CHF";
-
-            case "usa":
-            case "amerika":
-                currency = " $";
-
-            default:
-                currency = " €";
-        }
-    }
-
-    /**
-     * get information if payment comes out of europe
-     *
-     * @return
-     */
-    private void calculatePaymentFromEurope() {
-        String country = replacer.replace("{process.Land}").toLowerCase();
-
-        switch (country) {
-            case "deutschland":
-            case "niederlande":
-            case "österreich":
-            case "schweiz":
-                paymentFromEurope = true;
-
-            default:
-                paymentFromEurope = false;
-        }
-    }
-
-    //    /**
-    //     * get pricing for delivery based on delivery price method
-    //     *
-    //     * @return
-    //     */
-    //    private ZbzInvoiceItem getDeliveryCosts() {
-    //        String delivery = replacer.replace("{process.Lieferart}").toLowerCase();
-    //
-    //        if ("post".equals(delivery)) {
-    //            double priceDelivery = 7;
-    //            return new ZbzInvoiceItem("Lieferung per Post", "pauschal", priceDelivery, priceDelivery);
-    //        }
-    //
-    //        if ("cd/dvd".equals(delivery)) {
-    //            double priceDelivery = 25;
-    //            return new ZbzInvoiceItem("Lieferung als CD / DVD", "pauschal", priceDelivery, priceDelivery);
-    //        }
-    //
-    //        return null;
-    //    }
 
     /**
      * calculate the entire pricing to generate an invoice
@@ -536,4 +472,5 @@ public class ZbzOrderDeliveryStepPlugin implements IStepPluginVersion2 {
             return df.format(d);
         }
     }
+
 }

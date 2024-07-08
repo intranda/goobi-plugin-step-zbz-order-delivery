@@ -33,6 +33,7 @@ public class ZbzCalculation {
     private double invoicePayment_price = 0;
     private double invoicePayment_total = 0;
 
+    private String currency;
     private double total = 0;
 
     /**
@@ -100,19 +101,26 @@ public class ZbzCalculation {
 
         switch (invoicePayment_type) {
             case "Paypal":
+                currency = " CHF";
                 invoicePayment_price =
                         (invoicePages_total + invoiceService_total + invoiceAdditionals_total + invoiceDelivery_total) * 0.1;
                 invoicePayment_total = invoicePayment_price;
                 break;
 
+            case "Rechnung EUR":
+                currency = " €";
+                invoicePayment_price = 0;
+                invoicePayment_total = 0;
+                break;
+
             default:
+                currency = " CHF";
                 invoicePayment_price = 0;
                 invoicePayment_total = 0;
                 break;
         }
 
         total = invoicePages_total + invoiceService_total + invoiceAdditionals_total + invoiceDelivery_total + invoicePayment_total;
-        ;
     }
 
     /**
