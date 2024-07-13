@@ -1,7 +1,6 @@
 ---
 title: Invoices and delivery notes for user orders
 identifier: intranda_step_zbz_order_delivery
-github: https://github.com/intranda/plugin-step-zbz-order-delivery
 description: Step plugin for Goobi workflow for generating invoices and delivery notes for user orders at the Zurich Central Library
 published: true
 ---
