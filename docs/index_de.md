@@ -1,7 +1,6 @@
 ---
 title: Rechnungen und Lieferscheine für Nutzerbestellungen
 identifier: intranda_step_zbz_order_delivery
-github: https://github.com/intranda/plugin-step-zbz-order-delivery
 description: Step Plugin für Goobi workflow zum Erzeugen von Rechnungen und Lieferscheinen für Nutzerbestellungen an der ZB Zürich
 published: true
 ---
