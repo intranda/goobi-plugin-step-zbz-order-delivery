@@ -17,10 +17,12 @@ public class ZbzCalculation {
     private double invoicePages_price = 0;
     private double invoicePages_total = 0;
 
+    private String invoiceService_label = "Sonstige Dienstleistungen";
     private double invoiceService_units = 0;
     private double invoiceService_price = 0;
     private double invoiceService_total = 0;
 
+    private String invoiceAdditionals_label = "Zusatzaufwände";
     private double invoiceAdditionals_units = 0;
     private double invoiceAdditionals_price = 0;
     private double invoiceAdditionals_total = 0;
@@ -62,6 +64,9 @@ public class ZbzCalculation {
             }
 
             // service
+            if ("Rechnung Sonstige Dienstleistungen Label".equals(prop.getTitel())) {
+                invoiceService_label = prop.getWert();
+            }
             if ("Rechnung Sonstige Dienstleistungen Einheiten".equals(prop.getTitel())) {
                 invoiceService_units = Double.parseDouble(prop.getWert());
             }
@@ -70,6 +75,9 @@ public class ZbzCalculation {
             }
 
             // additionals
+            if ("Rechnung Zusatzaufwände Label".equals(prop.getTitel())) {
+                invoiceAdditionals_label = prop.getWert();
+            }
             if ("Rechnung Zusatzaufwände Einheiten".equals(prop.getTitel())) {
                 invoiceAdditionals_units = Double.parseDouble(prop.getWert());
             }
@@ -129,8 +137,10 @@ public class ZbzCalculation {
     public void update() {
         writeProperty("Rechnung Digitalisate Einheiten", String.valueOf(invoicePages_units));
         writeProperty("Rechnung Digitalisate Preis", String.valueOf(invoicePages_price));
+        writeProperty("Rechnung Sonstige Dienstleistungen Label", invoiceService_label);
         writeProperty("Rechnung Sonstige Dienstleistungen Einheiten", String.valueOf(invoiceService_units));
         writeProperty("Rechnung Sonstige Dienstleistungen Preis", String.valueOf(invoiceService_price));
+        writeProperty("Rechnung Zusatzaufwände Label", invoiceAdditionals_label);
         writeProperty("Rechnung Zusatzaufwände Einheiten", String.valueOf(invoiceAdditionals_units));
         writeProperty("Rechnung Zusatzaufwände Preis", String.valueOf(invoiceAdditionals_price));
         writeProperty("Rechnung Versandkosten Einheiten", String.valueOf(invoiceDelivery_units));

@@ -101,10 +101,15 @@
             
             <!-- SERVICE -->
             <div class="form-row">
-        
                 <div class="form-label">
-                    <intranda:formLabel label="Sonstige Dienstleistungen"
-                        labelFor="ServiceA"  labelRequired="false"/>
+                    <h:inputText
+                        id="ServiceZ"
+                        styleClass="form-control form__input"
+                        value="#{AktuelleSchritteForm.myPlugin.calculation.invoiceService_label}"
+                        required="true"
+                        readonly="false"
+                        tabindex="0">
+                    </h:inputText>
                 </div>        
                 <div class="form-input">
                     <div class="row col-12 border-0">
@@ -155,8 +160,14 @@
             <div class="form-row">
         
                 <div class="form-label">
-                    <intranda:formLabel label="Zusatzaufwände"
-                        labelFor="AdditionalsA"  labelRequired="false"/>
+                    <h:inputText
+                        id="AdditionalsZ"
+                        styleClass="form-control form__input"
+                        value="#{AktuelleSchritteForm.myPlugin.calculation.invoiceAdditionals_label}"
+                        required="true"
+                        readonly="false"
+                        tabindex="0">
+                    </h:inputText>
                 </div>        
                 <div class="form-input">
                     <div class="row col-12 border-0">

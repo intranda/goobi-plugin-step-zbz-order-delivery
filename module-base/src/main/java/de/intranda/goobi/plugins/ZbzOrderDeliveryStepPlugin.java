@@ -380,14 +380,14 @@ public class ZbzOrderDeliveryStepPlugin implements IStepPluginVersion2 {
 
         // Service
         if (calculation.getInvoiceService_total() > 0) {
-            calcs.add(new ZbzInvoiceItem("Sonstige Dienstleistungen", doubleToString(calculation.getInvoiceService_units()),
+            calcs.add(new ZbzInvoiceItem(calculation.getInvoiceService_label(), doubleToString(calculation.getInvoiceService_units()),
                     calculation.getInvoiceService_price(),
                     calculation.getInvoiceService_total()));
         }
 
         // additionals
         if (calculation.getInvoiceAdditionals_total() > 0) {
-            calcs.add(new ZbzInvoiceItem("Zusatzaufwände", doubleToString(calculation.getInvoiceAdditionals_units()),
+            calcs.add(new ZbzInvoiceItem(calculation.getInvoiceAdditionals_label(), doubleToString(calculation.getInvoiceAdditionals_units()),
                     calculation.getInvoiceAdditionals_price(),
                     calculation.getInvoiceAdditionals_total()));
         }
