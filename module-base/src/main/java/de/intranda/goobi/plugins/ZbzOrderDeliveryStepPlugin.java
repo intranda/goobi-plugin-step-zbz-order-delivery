@@ -311,7 +311,7 @@ public class ZbzOrderDeliveryStepPlugin implements IStepPluginVersion2 {
 
         // generally add the number of images for the process
         Element e4 = new Element("processFiles");
-        e4.setText(String.valueOf(String.valueOf(p.getSortHelperImages())));
+        e4.setText(String.valueOf(p.getSortHelperImages()));
         mainElement.addContent(e4);
 
         // add all properties

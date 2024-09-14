@@ -102,6 +102,11 @@ public class ZbzCalculation {
             }
         }
 
+        // if the number of pages is still 0 try to count these
+        if (invoicePages_units == 0) {
+            invoicePages_units = process.getSortHelperImages();
+        }
+
         invoicePages_total = invoicePages_units * invoicePages_price;
         invoiceService_total = invoiceService_units * invoiceService_price;
         invoiceAdditionals_total = invoiceAdditionals_units * invoiceAdditionals_price;
