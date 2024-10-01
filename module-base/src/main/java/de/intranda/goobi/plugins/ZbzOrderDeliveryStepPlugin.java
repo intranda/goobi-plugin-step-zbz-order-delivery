@@ -311,7 +311,7 @@ public class ZbzOrderDeliveryStepPlugin implements IStepPluginVersion2 {
 
         // generally add the number of images for the process
         Element e4 = new Element("processFiles");
-        e4.setText(String.valueOf(String.valueOf(p.getSortHelperImages())));
+        e4.setText(String.valueOf(p.getSortHelperImages()));
         mainElement.addContent(e4);
 
         // add all properties
@@ -380,14 +380,14 @@ public class ZbzOrderDeliveryStepPlugin implements IStepPluginVersion2 {
 
         // Service
         if (calculation.getInvoiceService_total() > 0) {
-            calcs.add(new ZbzInvoiceItem("Sonstige Dienstleistungen", doubleToString(calculation.getInvoiceService_units()),
+            calcs.add(new ZbzInvoiceItem(calculation.getInvoiceService_label(), doubleToString(calculation.getInvoiceService_units()),
                     calculation.getInvoiceService_price(),
                     calculation.getInvoiceService_total()));
         }
 
         // additionals
         if (calculation.getInvoiceAdditionals_total() > 0) {
-            calcs.add(new ZbzInvoiceItem("Zusatzaufwände", doubleToString(calculation.getInvoiceAdditionals_units()),
+            calcs.add(new ZbzInvoiceItem(calculation.getInvoiceAdditionals_label(), doubleToString(calculation.getInvoiceAdditionals_units()),
                     calculation.getInvoiceAdditionals_price(),
                     calculation.getInvoiceAdditionals_total()));
         }
