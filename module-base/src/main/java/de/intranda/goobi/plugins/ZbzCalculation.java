@@ -22,7 +22,7 @@ public class ZbzCalculation {
     private double invoiceService_price = 0;
     private double invoiceService_total = 0;
 
-    private String invoiceAdditionals_label = "Zusatzaufwände";
+    private String invoiceAdditionals_label = "Mindestbetrag-Zuschlag";
     private double invoiceAdditionals_units = 0;
     private double invoiceAdditionals_price = 0;
     private double invoiceAdditionals_total = 0;
@@ -145,13 +145,23 @@ public class ZbzCalculation {
         writeProperty("Rechnung Sonstige Dienstleistungen Label", invoiceService_label);
         writeProperty("Rechnung Sonstige Dienstleistungen Einheiten", String.valueOf(invoiceService_units));
         writeProperty("Rechnung Sonstige Dienstleistungen Preis", String.valueOf(invoiceService_price));
-        writeProperty("Rechnung Zusatzaufwände Label", invoiceAdditionals_label);
-        writeProperty("Rechnung Zusatzaufwände Einheiten", String.valueOf(invoiceAdditionals_units));
-        writeProperty("Rechnung Zusatzaufwände Preis", String.valueOf(invoiceAdditionals_price));
         writeProperty("Rechnung Versandkosten Einheiten", String.valueOf(invoiceDelivery_units));
         writeProperty("Rechnung Versandkosten Preis", String.valueOf(invoiceDelivery_price));
         writeProperty("Rechnung Zahlungsart", invoicePayment_type);
         writeProperty("Rechnung Bankspesen", String.valueOf(invoicePayment_price));
+
+        // calulate the Mindestbetrag-Zuschlag
+        double tempSum = invoicePages_units * invoicePages_price;
+        if (tempSum < 10) {
+            invoiceAdditionals_units = 1;
+            invoiceAdditionals_price = 10 - tempSum;
+        } else {
+            invoiceAdditionals_units = 0;
+            invoiceAdditionals_price = 0;
+        }
+        writeProperty("Rechnung Zusatzaufwände Label", invoiceAdditionals_label);
+        writeProperty("Rechnung Zusatzaufwände Einheiten", String.valueOf(invoiceAdditionals_units));
+        writeProperty("Rechnung Zusatzaufwände Preis", String.valueOf(invoiceAdditionals_price));
 
         readInvoiceProperties();
     }

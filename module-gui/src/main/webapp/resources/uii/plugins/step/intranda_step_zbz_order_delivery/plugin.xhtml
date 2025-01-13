@@ -160,14 +160,19 @@
             <div class="form-row">
         
                 <div class="form-label">
+                    <intranda:formLabel label="#{AktuelleSchritteForm.myPlugin.calculation.invoiceAdditionals_label}"
+                        labelFor="AdditionalsA"  labelRequired="false"/>
+                    <!-- 
                     <h:inputText
                         id="AdditionalsZ"
                         styleClass="form-control form__input"
                         value="#{AktuelleSchritteForm.myPlugin.calculation.invoiceAdditionals_label}"
                         required="true"
-                        readonly="false"
+                        readonly="true"
+                        disabled="true"
                         tabindex="0">
                     </h:inputText>
+                    -->
                 </div>        
                 <div class="form-input">
                     <div class="row col-12 border-0">
@@ -179,7 +184,8 @@
                                 styleClass="form-control form__input text-end"
                                 value="#{AktuelleSchritteForm.myPlugin.calculation.invoiceAdditionals_units}"
                                 required="true"
-                                readonly="false"
+                                readonly="true"
+                                disabled="true"
                                 tabindex="0">
                                 <f:convertNumber groupingUsed="true" minFractionDigits="2" />
                             </h:inputText>
@@ -192,7 +198,8 @@
                                 styleClass="form-control form__input text-end"
                                 value="#{AktuelleSchritteForm.myPlugin.calculation.invoiceAdditionals_price}"
                                 required="true"
-                                readonly="false"
+                                readonly="true"
+                                disabled="true"
                                 tabindex="0"> 
                                 <f:convertNumber groupingUsed="true" minFractionDigits="2" />                               
                             </h:inputText>
