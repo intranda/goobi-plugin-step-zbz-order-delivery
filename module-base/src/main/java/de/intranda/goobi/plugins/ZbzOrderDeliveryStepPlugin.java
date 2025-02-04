@@ -33,9 +33,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import javax.faces.context.FacesContext;
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletResponse;
 import javax.xml.transform.Result;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
@@ -73,6 +70,9 @@ import de.sub.goobi.helper.StorageProvider;
 import de.sub.goobi.helper.VariableReplacer;
 import de.sub.goobi.helper.exceptions.DAOException;
 import de.sub.goobi.helper.exceptions.SwapException;
+import jakarta.faces.context.FacesContext;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.Getter;
 import lombok.extern.log4j.Log4j2;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
@@ -371,7 +371,7 @@ public class ZbzOrderDeliveryStepPlugin implements IStepPluginVersion2 {
      */
     private List<ZbzInvoiceItem> getInvoicing() {
 
-        List<ZbzInvoiceItem> calcs = new ArrayList<ZbzInvoiceItem>();
+        List<ZbzInvoiceItem> calcs = new ArrayList<>();
 
         // pages
         calcs.add(new ZbzInvoiceItem("Erstellung der Digitalisate", doubleToString(calculation.getInvoicePages_units()),
