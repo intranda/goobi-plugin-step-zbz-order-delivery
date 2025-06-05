@@ -1,7 +1,8 @@
 package de.intranda.goobi.plugins;
 
+import org.goobi.beans.GoobiProperty;
+import org.goobi.beans.GoobiProperty.PropertyOwnerType;
 import org.goobi.beans.Process;
-import org.goobi.beans.Processproperty;
 
 import de.sub.goobi.persistence.managers.ProcessManager;
 import de.sub.goobi.persistence.managers.PropertyManager;
@@ -53,52 +54,51 @@ public class ZbzCalculation {
      */
     public void readInvoiceProperties() {
         process = ProcessManager.getProcessById(process.getId());
-        for (Processproperty prop : process.getEigenschaften()) {
-
+        for (GoobiProperty prop : process.getProperties()) {
             // pages
-            if ("Rechnung Digitalisate Einheiten".equals(prop.getTitel())) {
-                invoicePages_units = Double.parseDouble(prop.getWert());
+            if ("Rechnung Digitalisate Einheiten".equals(prop.getPropertyName())) {
+                invoicePages_units = Double.parseDouble(prop.getPropertyValue());
             }
-            if ("Rechnung Digitalisate Preis".equals(prop.getTitel())) {
-                invoicePages_price = Double.parseDouble(prop.getWert());
+            if ("Rechnung Digitalisate Preis".equals(prop.getPropertyName())) {
+                invoicePages_price = Double.parseDouble(prop.getPropertyValue());
             }
 
             // service
-            if ("Rechnung Sonstige Dienstleistungen Label".equals(prop.getTitel())) {
-                invoiceService_label = prop.getWert();
+            if ("Rechnung Sonstige Dienstleistungen Label".equals(prop.getPropertyName())) {
+                invoiceService_label = prop.getPropertyValue();
             }
-            if ("Rechnung Sonstige Dienstleistungen Einheiten".equals(prop.getTitel())) {
-                invoiceService_units = Double.parseDouble(prop.getWert());
+            if ("Rechnung Sonstige Dienstleistungen Einheiten".equals(prop.getPropertyName())) {
+                invoiceService_units = Double.parseDouble(prop.getPropertyValue());
             }
-            if ("Rechnung Sonstige Dienstleistungen Preis".equals(prop.getTitel())) {
-                invoiceService_price = Double.parseDouble(prop.getWert());
+            if ("Rechnung Sonstige Dienstleistungen Preis".equals(prop.getPropertyName())) {
+                invoiceService_price = Double.parseDouble(prop.getPropertyValue());
             }
 
             // additionals
-            if ("Rechnung Zusatzaufwände Label".equals(prop.getTitel())) {
-                invoiceAdditionals_label = prop.getWert();
+            if ("Rechnung Zusatzaufwände Label".equals(prop.getPropertyName())) {
+                invoiceAdditionals_label = prop.getPropertyValue();
             }
-            if ("Rechnung Zusatzaufwände Einheiten".equals(prop.getTitel())) {
-                invoiceAdditionals_units = Double.parseDouble(prop.getWert());
+            if ("Rechnung Zusatzaufwände Einheiten".equals(prop.getPropertyName())) {
+                invoiceAdditionals_units = Double.parseDouble(prop.getPropertyValue());
             }
-            if ("Rechnung Zusatzaufwände Preis".equals(prop.getTitel())) {
-                invoiceAdditionals_price = Double.parseDouble(prop.getWert());
+            if ("Rechnung Zusatzaufwände Preis".equals(prop.getPropertyName())) {
+                invoiceAdditionals_price = Double.parseDouble(prop.getPropertyValue());
             }
 
             // delivery
-            if ("Rechnung Versandkosten Einheiten".equals(prop.getTitel())) {
-                invoiceDelivery_units = Double.parseDouble(prop.getWert());
+            if ("Rechnung Versandkosten Einheiten".equals(prop.getPropertyName())) {
+                invoiceDelivery_units = Double.parseDouble(prop.getPropertyValue());
             }
-            if ("Rechnung Versandkosten Preis".equals(prop.getTitel())) {
-                invoiceDelivery_price = Double.parseDouble(prop.getWert());
+            if ("Rechnung Versandkosten Preis".equals(prop.getPropertyName())) {
+                invoiceDelivery_price = Double.parseDouble(prop.getPropertyValue());
             }
 
             // payment
-            if ("Rechnung Zahlungsart".equals(prop.getTitel())) {
-                invoicePayment_type = prop.getWert();
+            if ("Rechnung Zahlungsart".equals(prop.getPropertyName())) {
+                invoicePayment_type = prop.getPropertyValue();
             }
-            if ("Rechnung Bankspesen".equals(prop.getTitel())) {
-                invoicePayment_price = Double.parseDouble(prop.getWert());
+            if ("Rechnung Bankspesen".equals(prop.getPropertyName())) {
+                invoicePayment_price = Double.parseDouble(prop.getPropertyValue());
             }
         }
 
@@ -175,19 +175,19 @@ public class ZbzCalculation {
     private void writeProperty(String name, String value) {
 
         // update existing property if available
-        for (Processproperty prop : process.getEigenschaften()) {
-            if (name.equals(prop.getTitel())) {
-                prop.setWert(value);
-                PropertyManager.saveProcessProperty(prop);
+        for (GoobiProperty prop : process.getProperties()) {
+            if (name.equals(prop.getPropertyName())) {
+                prop.setPropertyValue(value);
+                PropertyManager.saveProperty(prop);
                 return;
             }
         }
 
         // create a new property as it is not there yet
-        Processproperty pp = new Processproperty();
-        pp.setTitel(name);
-        pp.setWert(value);
-        pp.setProzess(process);
-        PropertyManager.saveProcessProperty(pp);
+        GoobiProperty pp = new GoobiProperty(PropertyOwnerType.PROCESS);
+        pp.setPropertyName(name);
+        pp.setPropertyValue(value);
+        pp.setOwner(process);
+        PropertyManager.saveProperty(pp);
     }
 }

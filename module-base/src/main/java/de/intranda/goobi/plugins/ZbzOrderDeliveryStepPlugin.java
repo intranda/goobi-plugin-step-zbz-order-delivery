@@ -48,8 +48,8 @@ import org.apache.fop.apps.FopConfParser;
 import org.apache.fop.apps.FopFactory;
 import org.apache.fop.apps.FopFactoryBuilder;
 import org.apache.xmlgraphics.util.MimeConstants;
+import org.goobi.beans.GoobiProperty;
 import org.goobi.beans.Process;
-import org.goobi.beans.Processproperty;
 import org.goobi.beans.Step;
 import org.goobi.production.enums.LogType;
 import org.goobi.production.enums.PluginGuiType;
@@ -85,6 +85,7 @@ import ugh.exceptions.UGHException;
 @Log4j2
 public class ZbzOrderDeliveryStepPlugin implements IStepPluginVersion2 {
 
+    private static final long serialVersionUID = 9111208781491141694L;
     @Getter
     private String title = "intranda_step_zbz_order_delivery";
     @Getter
@@ -317,10 +318,10 @@ public class ZbzOrderDeliveryStepPlugin implements IStepPluginVersion2 {
         // add all properties
         Element pe = new Element("properties");
         mainElement.addContent(pe);
-        for (Processproperty prop : p.getEigenschaften()) {
+        for (GoobiProperty prop : p.getProperties()) {
             Element e = new Element("property");
-            e.setAttribute("name", prop.getTitel());
-            e.setText(prop.getWert());
+            e.setAttribute("name", prop.getPropertyName());
+            e.setText(prop.getPropertyValue());
             pe.addContent(e);
         }
 
