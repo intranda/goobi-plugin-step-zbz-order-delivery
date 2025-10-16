@@ -29,6 +29,7 @@ import java.io.OutputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -307,7 +308,12 @@ public class ZbzOrderDeliveryStepPlugin implements IStepPluginVersion2 {
 
         // generally add the process creation date
         Element e3 = new Element("processDate");
-        e3.setText(p.getErstellungsdatumAsString());
+        if (p.getErstellungsdatum() != null) {
+            SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+            e3.setText(sdf.format(p.getErstellungsdatum()));
+        } else {
+            e3.setText(p.getErstellungsdatumAsString());
+        }
         mainElement.addContent(e3);
 
         // generally add the number of images for the process
