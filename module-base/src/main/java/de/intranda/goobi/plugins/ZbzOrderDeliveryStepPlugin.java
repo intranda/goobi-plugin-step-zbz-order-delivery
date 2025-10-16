@@ -286,7 +286,7 @@ public class ZbzOrderDeliveryStepPlugin implements IStepPluginVersion2 {
 
     /**
      * create an XML Document of all contentfields
-     * 
+     *
      * @param contentFields
      * @return
      * @throws PreferencesException
@@ -335,6 +335,29 @@ public class ZbzOrderDeliveryStepPlugin implements IStepPluginVersion2 {
             me.addContent(e);
         }
 
+        // Add step information
+        Element se = new Element("steps");
+        mainElement.addContent(se);
+        for (Step s : p.getSchritte()) {
+            Element e = new Element("step");
+            e.setAttribute("stepID", String.valueOf(s.getId()));
+
+            Element titleElement = new Element("title");
+            titleElement.setText(s.getTitel());
+            e.addContent(titleElement);
+
+            if (s.getBearbeitungsbenutzer() != null) {
+                Element userElement = new Element("user");
+                userElement.setText(s.getBearbeitungsbenutzer().getNachVorname());
+                userElement.setAttribute("location", s.getBearbeitungsbenutzer().getStandort() != null ? s.getBearbeitungsbenutzer().getStandort() : "");
+                e.addContent(userElement);
+            } else {
+            }
+
+            // Add the step element to the steps container
+            se.addContent(e);
+        }
+
         // calculate everything
         List<ZbzInvoiceItem> calcs = getInvoicing();
         DecimalFormat df = new DecimalFormat("0.00");
@@ -367,7 +390,7 @@ public class ZbzOrderDeliveryStepPlugin implements IStepPluginVersion2 {
 
     /**
      * calculate the entire pricing to generate an invoice
-     * 
+     *
      * @return
      */
     private List<ZbzInvoiceItem> getInvoicing() {
@@ -444,7 +467,7 @@ public class ZbzOrderDeliveryStepPlugin implements IStepPluginVersion2 {
 
     /**
      * internal method to get a transformer object
-     * 
+     *
      * @param streamSource
      * @return
      */

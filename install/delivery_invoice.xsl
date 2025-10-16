@@ -3,7 +3,7 @@
 	<xsl:output method="xml" indent="yes"/>
 	<xsl:template match="/">
 		<fo:root xmlns:fo="http://www.w3.org/1999/XSL/Format">
-			
+
 			<!-- LAYOUT -->
 			<fo:layout-master-set>
 				<fo:simple-page-master master-name="A4" page-width="21cm" page-height="29.7cm" margin-left="2cm" margin-top="2cm" margin-right="2cm">
@@ -11,11 +11,11 @@
 				</fo:simple-page-master>
 			</fo:layout-master-set>
 			<!-- // LAYOUT -->
-			
+
 			<!-- CONTENT -->
 			<fo:page-sequence master-reference="A4">
 				<fo:flow flow-name="xsl-region-body" font-family="georgia, opensans, unicode" font-size="9pt" >
-					
+
 					<!-- LETTER HEAD -->
 					<fo:block-container position="fixed" left="14cm" top="0.2cm">
 						<fo:block>
@@ -24,7 +24,7 @@
 					</fo:block-container>
 					<!-- LETTER HEAD -->
 
-					<!-- LOGOS 
+					<!-- LOGOS
 					<fo:block-container position="fixed" left="2cm" top="28cm">
 						<fo:block>
 							<fo:external-graphic src="logo.png" content-width="22mm"/>
@@ -37,7 +37,7 @@
 					</fo:block-container>
 					-->
 					<!-- LOGOS -->
-					
+
 					<!-- HEADER -->
 					<fo:block text-align="left" font-weight="bold" font-size="14pt" margin-top="25pt" margin-bottom="30pt">
 				         <xsl:text>Rechnung Digitalisierungszentrum</xsl:text>
@@ -45,12 +45,12 @@
 					<!-- // HEADER -->
 
 					<!-- JOB INFORMATION -->
-				
+
 					<fo:table line-height="11pt" table-layout="fixed">
 						<fo:table-column column-width="3cm"/>
 						<fo:table-column column-width="15cm"/>
 						<fo:table-body>
-							
+
 							<!-- CATALOGUE ID -->
 							<fo:table-row>
 								<fo:table-cell>
@@ -76,8 +76,24 @@
 								</fo:table-cell>
 							</fo:table-row>
 							<!-- // PROCESS DATE -->
-							
-							<!-- PROCESS ID 
+
+							<!-- USER INFORMATION -->
+							<fo:table-row>
+								<fo:table-cell>
+									<fo:block>Name, Abteilung:</fo:block>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block>
+										<xsl:value-of select="//steps/step[1]/user" />
+										<xsl:text> (</xsl:text>
+										<xsl:value-of select="//steps/step[1]/user/@location" />
+										<xsl:text>)</xsl:text>
+									</fo:block>
+								</fo:table-cell>
+							</fo:table-row>
+							<!-- // USER INFORMATION -->
+
+							<!-- PROCESS ID
 							<fo:table-row>
 								<fo:table-cell>
 									<fo:block>Interne Vorgangs-ID:</fo:block>
@@ -90,8 +106,8 @@
 							</fo:table-row>
 							-->
 							<!-- // PROCESS ID -->
-							
-							<!-- PROCESS TITLE 
+
+							<!-- PROCESS TITLE
 							<fo:table-row>
 								<fo:table-cell>
 									<fo:block>Interner Vorgangstitel:</fo:block>
@@ -104,7 +120,7 @@
 							</fo:table-row>
 							-->
 							<!-- // PROCESS TITLE -->
-						
+
 						</fo:table-body>
 					</fo:table>
 					<!-- // JOB INFORMATION -->
@@ -129,7 +145,7 @@
 										<fo:table-column column-width="3cm"/>
 										<fo:table-column column-width="15cm"/>
 										<fo:table-body>
-											
+
 											<!-- ORDERER ADDRESS -->
 											<fo:table-row>
 												<fo:table-cell>
@@ -159,7 +175,7 @@
 												</fo:table-cell>
 											</fo:table-row>
 											<!-- // ORDERER COUNTRY -->
-											
+
 										</fo:table-body>
 									</fo:table>
 								</fo:table-cell>
@@ -171,7 +187,7 @@
 										<fo:table-column column-width="3cm"/>
 										<fo:table-column column-width="15cm"/>
 										<fo:table-body>
-											
+
 											<!-- INVOICE ADDRESS -->
 											<xsl:variable name="invoice" select="//properties/property[@name = 'Abweichende Rechnungsadresse']" />
 											<xsl:if test="$invoice != ''">
@@ -219,7 +235,7 @@
 												</fo:table-cell>
 											</fo:table-row>
 											<!-- // MAIL -->
-											
+
 											<!-- PHONE -->
 											<xsl:variable name="phone" select="//properties/property[@name = 'Telefon']" />
 											<xsl:if test="$phone != ''">
@@ -245,7 +261,7 @@
 						</fo:table-body>
 					</fo:table>
 					<!-- // CONTACT INFORMATION -->
-					
+
 					<!-- HORIZONTAL SEPARATOR -->
 					<fo:block border-bottom="1pt solid #cccccc" margin="15pt 0"/>
 
@@ -255,7 +271,7 @@
 					</fo:block>
 					<fo:table line-height="11pt" table-layout="fixed">
 						<fo:table-column column-width="17cm"/>
-						
+
 						<fo:table-header background-color="#dddddd" border-width="1pt" border-style="solid">
 							<fo:table-row>
 								<fo:table-cell padding="3pt" border-width="1pt" border-style="solid" border-color="#bbb">
@@ -265,7 +281,7 @@
 						</fo:table-header>
 
 						<fo:table-body background-color="#ffffff" border-width="1pt" border-style="solid">
-							
+
 							<!-- Call the template to split multiple orders -->
 							<xsl:variable name="content" select="//properties/property[@name = 'Umfang der Bestellung']" />
 							<xsl:call-template name="splitOrders">
@@ -283,7 +299,7 @@
 								</fo:table-row>
 							</xsl:if>
 						</fo:table-body>
-						
+
 					</fo:table>
 					<!-- // ORDER CONTENT -->
 
@@ -295,7 +311,7 @@
 						<fo:table-column column-width="3cm"/>
 						<fo:table-column column-width="14cm"/>
 						<fo:table-body>
-							
+
 							<!-- FORMAT -->
 							<fo:table-row>
 								<fo:table-cell background-color="#dddddd" padding="3pt" border-width="1pt" border-style="solid" border-color="#bbb">
@@ -308,7 +324,7 @@
 								</fo:table-cell>
 							</fo:table-row>
 							<!-- // FORMAT -->
-							
+
 							<!-- COLOR -->
 							<fo:table-row>
 								<fo:table-cell background-color="#dddddd" padding="3pt" border-width="1pt" border-style="solid" border-color="#bbb">
@@ -321,7 +337,7 @@
 								</fo:table-cell>
 							</fo:table-row>
 							<!-- // COLOR -->
-							
+
 							<!-- QUALITY -->
 							<fo:table-row>
 								<fo:table-cell background-color="#dddddd" padding="3pt" border-width="1pt" border-style="solid" border-color="#bbb">
@@ -347,7 +363,7 @@
 								</fo:table-cell>
 							</fo:table-row>
 							<!-- // PRINT LASER -->
-							
+
 							<!-- PRINT INK -->
 							<fo:table-row>
 								<fo:table-cell background-color="#dddddd" padding="3pt" border-width="1pt" border-style="solid" border-color="#bbb">
@@ -360,7 +376,7 @@
 								</fo:table-cell>
 							</fo:table-row>
 							<!-- // PRINT INK -->
-							
+
 							<!-- PRINT NEWSPAPER -->
 							<fo:table-row>
 								<fo:table-cell background-color="#dddddd" padding="3pt" border-width="1pt" border-style="solid" border-color="#bbb">
@@ -410,7 +426,7 @@
 								</fo:table-cell>
 							</fo:table-row>
 							<!-- // DELIVERY -->
-							
+
 						</fo:table-body>
 					</fo:table>
 					<!-- // ORDER DETAILS -->
@@ -425,7 +441,7 @@
 						<fo:table-column column-width="3cm"/>
 						<fo:table-column column-width="3cm"/>
 						<fo:table-column column-width="3cm"/>
-						
+
 						<fo:table-header background-color="#dddddd" border-width="1pt" border-style="solid">
 							<fo:table-row>
 								<fo:table-cell padding="3pt" border-width="1pt" border-style="solid" border-color="#bbb">
@@ -442,7 +458,7 @@
 								</fo:table-cell>
 							</fo:table-row>
 						</fo:table-header>
-							
+
 						<fo:table-body>
 
 							<!-- PRICE ITEM LIST -->
@@ -473,7 +489,7 @@
 								</fo:table-row>
 							</xsl:for-each>
 							<!-- // PRICE ITEM LIST -->
-							
+
 							<!-- TOTAL -->
 							<fo:table-row>
 								<fo:table-cell padding="3pt" border-width="1pt" border-style="solid" border-color="#bbb" number-columns-spanned="3" font-weight="bold">
@@ -484,7 +500,7 @@
 								</fo:table-cell>
 							</fo:table-row>
 							<!-- // TOTAL -->
-							
+
 						</fo:table-body>
 					</fo:table>
 					<!-- // PRICING -->
@@ -500,10 +516,10 @@
 	<xsl:template name="splitLines">
 		<!-- Parameters -->
 		<xsl:param name="inputString"/>
-		
+
 		<!-- Split the input string at semicolons -->
 		<xsl:variable name="values" select="substring-before(concat($inputString, '&#xD;&#xA;'), '&#xD;&#xA;')" />
-		
+
 		<!-- Output the value -->
 		<xsl:if test="$values != ''">
 			<fo:block>
@@ -520,10 +536,10 @@
 	<xsl:template name="splitOrders">
 		<!-- Parameters -->
 		<xsl:param name="inputString"/>
-		
+
 		<!-- Split the input string at semicolons -->
 		<xsl:variable name="values" select="substring-before(concat($inputString, '&#xD;&#xA;'), '&#xD;&#xA;')" />
-		
+
 		<!-- Output the value -->
 		<xsl:if test="$values != ''">
 			<fo:table-row>
