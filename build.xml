@@ -5,8 +5,8 @@
 		<exec executable="mvn">
 			<arg value="package"/>
 		</exec>
-		<copy file="module-main/target/plugin_intranda_step_zbz_order_delivery.jar" todir="/opt/digiverso/goobi/plugins/step/" overwrite="true"/>
-		<copy file="module-gui/target/plugin_intranda_step_zbz_order_delivery-GUI.jar" todir="/opt/digiverso/goobi/plugins/GUI/" overwrite="true"/>
+		<copy file="module-base/target/plugin-step-zbz-order-delivery-base.jar" todir="/opt/digiverso/goobi/plugins/step/" overwrite="true"/>
+		<copy file="module-gui/target/plugin-step-zbz-order-delivery-gui.jar" todir="/opt/digiverso/goobi/plugins/GUI/" overwrite="true"/>
 	</target>
 
 </project>
