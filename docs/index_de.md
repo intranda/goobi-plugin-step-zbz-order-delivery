@@ -30,7 +30,7 @@ Nach der Installation des Plugins kann dieses innerhalb des Workflows für die j
 
 ![Beispielhafter Aufbau eines Workflows](screen1_de.png)
 
-In diesem beispielhaften Workflow ist das Plugin insgesamt in drei Arbeitsschritten eingebunden. Der erste dieser Arbeitsschritte stellt dabei eine Nutzeroberfläche für die manuelle Bearbeitung durch einen Nutzer zur Verfügung, um zusätzliche Rechnungdaten erfassen zu lassen. Die beiden anderen Arbeitsschritte hingegen rufen das Plugin jeweils automatisch auf und erzeugen dabei einen Lieferschein und eine Rechnung im Dateisystem.
+In diesem beispielhaften Workflow ist das Plugin insgesamt in drei Arbeitsschritten eingebunden. Der erste dieser Arbeitsschritte stellt dabei eine Nutzeroberfläche für die manuelle Bearbeitung durch einen Nutzer zur Verfügung, um zusätzliche Rechnungsdaten erfassen zu lassen. Die beiden anderen Arbeitsschritte hingegen rufen das Plugin jeweils automatisch auf und erzeugen dabei einen Lieferschein und eine Rechnung im Dateisystem.
 
 ![Konfiguration des Plugins innerhalb von drei Arbeitsschritten des Workflows](screen2_de.png)
 
@@ -44,7 +44,7 @@ Hier können die zusätzlichen Daten eingetragen und angepasst werden. Auch ist 
 
 ![Vorschau der Rechnung nach Erfassung der Rechnungsdaten](screen4_de.png)
 
-Nach Abschluß des Arbeitsschritts zur Datenerfassung kann das Plugin weitere Male im Workflow eingebunden werden, um PDF-Dateien gemäß der Layoutvorgaben aus den xsl-Dateien zu generieren.
+Nach Abschluss des Arbeitsschritts zur Datenerfassung kann das Plugin weitere Male im Workflow eingebunden werden, um PDF-Dateien gemäß der Layoutvorgaben aus den xsl-Dateien zu generieren.
 
 Im weiteren Verlauf des Workflows können diese generierten PDF-Dateien, deren Speicherpfad und Benennung innerhalb der Konfigurationsdatei festgelegt werden können, z.B. an den Nutzer per E-Mail versendet werden.
 
@@ -57,7 +57,7 @@ Die Konfiguration des Plugins erfolgt in der Datei `plugin_intranda_step_zbz_ord
 
 Parameter         | Erläuterung
 ------------------|----------------------------------------
-`debugMode`       | Mit diesem Parameter läßt sich festlegen, dass bei der Generierung einer Rechnung oder eines Lieferscheins eine XML-Datei innerhalb des tmp-Ordners von Goobi abgelegt wird, die einen Einblick in die Berechnungsgrundlage für die Rechnung darstellt.
+`debugMode`       | Mit diesem Parameter lässt sich festlegen, dass bei der Generierung einer Rechnung oder eines Lieferscheins eine XML-Datei innerhalb des tmp-Ordners von Goobi abgelegt wird, die einen Einblick in die Berechnungsgrundlage für die Rechnung darstellt.
 `xslt`            | Geben sie hier den Namen der `xsl-Datei` an, die für die Erzeugung der PDF-Datei verwendet werden soll.
 `resultFolder`    | Legen Sie hier das Verzeichnis fest, wo die PDF-Datei gespeichert werden soll.
 `resultFile`      | Definieren Sie hier den Namen der zu generierenden PDF-Datei.
