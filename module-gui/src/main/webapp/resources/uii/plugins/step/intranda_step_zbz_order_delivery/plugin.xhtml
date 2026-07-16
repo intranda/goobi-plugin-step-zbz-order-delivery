@@ -7,14 +7,15 @@
     xmlns:c="http://java.sun.com/jsp/jstl/core"
     xmlns:jsf="http://xmlns.jcp.org/jsf"
     xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
-    xmlns:intranda="http://xmlns.jcp.org/jsf/composite/composites">
+    xmlns:intranda="http://xmlns.jcp.org/jsf/composite/composites"
+    xmlns:util="http://goobi.io/util">
 
     <h:form>
         <intranda:box
             boxType="neutral"
             boxForm="true"
             boxPadding="false"
-            icon="fa-puzzle-piece"
+            icon="puzzle"
             title="Rechnungsdaten #{AktuelleSchritteForm.myPlugin.calculation.currency}">
 
             <!-- HEADER -->
@@ -378,10 +379,7 @@
                     jsf:id="absenden"
                     type="submit"
                     jsf:action="#{AktuelleSchritteForm.myPlugin.calculation.update}">
-                    <i class="fa fa-save"></i>
-                    <span>
-                        <h:outputText value="#{msgs.reload}" />
-                    </span>
+                    <util:icon-text icon="device-floppy" text="#{msgs.reload}" />
                 </button>
 
                 <!-- Download -->
@@ -389,10 +387,7 @@
                     jsf:id="download"
                     class="btn btn-primary-400"
                     jsf:action="#{AktuelleSchritteForm.myPlugin.updateAndPreview}">
-                    <i class="fa fa-file-pdf-o"></i>
-                    <span>
-                        <h:outputText value="#{msgs.plugin_codicological_showPreview}" />
-                    </span>
+                    <util:icon-text icon="file-type-pdf" text="#{msgs.plugin_codicological_showPreview}" />
                 </button>
 
             </div>
